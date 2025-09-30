@@ -1,0 +1,538 @@
+[[intro_chapter]]
+== 以太坊基础
+
+((("Ethereum (generally)","basics", id="ix_02intro-asciidoc0", range="startofrange")))在本章中，我们将开始探索以太坊，了解如何使用钱包、如何创建交易，以及如何运行一个基础的智能合约。
+
+[[ether_units]]
+=== 以太货币单位
+
+((("currency units")))((("Ethereum (generally)","currency units")))以太坊的货币单位称为_以太_（_ether_），通常写作“ETH”，也可以用符号&#926;（来自形似大写 E 的希腊字母“Xi”）或较少见的&#9830;来表示。例如，1 以太、1 ETH、&#926;1 或 &#9830;1 都代表相同的数额。
+
+[TIP]
+====
+使用 Unicode 字符 +U+039E+ 表示 &#926;，使用 +U+2666+ 表示 &#9830;。
+====
+
+以太可以拆分成更小的单位，直至最小单位 _wei_。1 以太等于 1 百京 wei（1 * 10^18^，即 1,000,000,000,000,000,000）。你可能会听到有人把货币称作“Ethereum”，但这是初学者常犯的错误。Ethereum 指的是系统本身，_以太_才是货币。
+
+在以太坊内部，价值始终以 wei 为单位，用无符号整数来表示。当你转账 1 以太时，交易会将 1000000000000000000 wei 编码为金额。
+
+以太的各种面额既有符合国际单位制（_SI_）的_科学名称_，也有向众多计算机和密码学先驱致敬的俗称。
+
+<<ether_denominations>> 展示了不同单位、对应俗称以及 SI 名称。与内部价值表示方式一致，表格按 wei（第一行）列出所有面额，在第 7 行以 10^18^ wei 标示以太。
+
+[[ether_denominations]]
+.以太面额与单位名称
+[options="header"]
+|===
+| Value (in wei) | Exponent | Common name | SI name
+| 1 | 1 | wei | Wei
+| 1,000 | 10^3^ | Babbage | Kilowei or femtoether
+| 1,000,000 | 10^6^ | Lovelace | Megawei or picoether
+| 1,000,000,000 | 10^9^ | Shannon | Gigawei or nanoether
+| 1,000,000,000,000 | 10^12^ | Szabo | Microether or micro
+| 1,000,000,000,000,000 | 10^15^ | Finney | Milliether or milli
+| _1,000,000,000,000,000,000_ | _10^18^_ | _Ether_ | _Ether_
+| 1,000,000,000,000,000,000,000 | 10^21^ | Grand | Kiloether
+| 1,000,000,000,000,000,000,000,000 | 10^24^ | | Megaether
+|===
+
+[[choosing_eth_wallet]]
+=== 选择以太坊钱包
+
+((("Ethereum (generally)","wallet choices")))((("wallets","choosing")))((("wallets","defined")))“钱包”这个词如今涵盖了很多含义，尽管它们都彼此相关，并且在日常使用中几乎可以互换。我们把“钱包”理解为帮助你管理以太坊账户的软件应用。简而言之，以太坊钱包是你进入以太坊系统的入口。它保管你的密钥，并可以代表你创建和广播交易。选择以太坊钱包可能会让人犯难，因为可选项众多、功能设计各异。有的更适合新手，有的更适合专家。以太坊平台本身仍在不断改进，而“最好的”钱包往往是那些能够适应平台升级所带来的变化的产品。
+
+不过别担心！如果你选择了一个钱包却不喜欢它的工作方式——或者一开始喜欢，后来想尝试别的——更换钱包非常容易。你只需要发起一笔交易，将资金从旧钱包发送到新钱包，或者导出你的私钥并导入到新钱包中即可。
+
+我们精选了几种类型的钱包，作为全书的示例。有些适用于移动端，有些适用于桌面，还有一些基于网页。我们选择它们是因为它们覆盖了功能和复杂度的广泛范围。但这并不意味着我们认可它们的质量或安全性，它们只是演示和测试的起点。
+
+((("private keys","wallets and")))请记住，要让钱包应用正常工作，它必须能够访问你的私钥，因此务必只从可信来源下载和使用钱包应用。通常而言，钱包越受欢迎，可信度往往越高。不过，把所有鸡蛋放在同一个篮子里总不是好主意，最好将以太坊账户分散在多个钱包中。
+
+以下是一些不错的入门钱包：
+
+MetaMask:: ((("MetaMask")))MetaMask 是运行在浏览器中的扩展钱包（Chrome、Firefox、Opera 或 Brave Browser）。它易于使用，且因能够连接多种以太坊节点和测试链而非常适合测试。MetaMask 虽然是基于网页的钱包，但也提供 iOS 和 Android 的移动应用。
+
+Jaxx:: ((("Jaxx")))((("wallets","Jaxx")))Jaxx 是一款多平台、多币种钱包，可运行在 Android、iOS、Windows、macOS 和 Linux 等多种操作系统上。它注重简单易用，常被推荐给新用户。根据安装位置不同，Jaxx 可以是移动钱包，也可以是桌面钱包。
+
+MyEtherWallet (MEW):: ((("MyEtherWallet (MEW)")))((("wallets","MyEtherWallet")))MyEtherWallet 主要是一个运行于任意浏览器的网页钱包，也提供 Android 和 iOS 版本。它具备多种复杂功能，我们会在后续示例中逐一探索。
+
+Emerald Wallet:: ((("Ethereum Classic (ETC)","Emerald Wallet and")))((("wallets","Emerald Wallet")))((("Emerald Wallet")))Emerald Wallet 为 Ethereum Classic 区块链设计，同时兼容其他以太坊系区块链。这是一款开源桌面应用，可运行于 Windows、macOS 和 Linux。Emerald Wallet 既可以运行全节点，也可以以“轻量”模式连接公共远程节点。它还提供一个配套的命令行工具，便于通过命令行执行所有操作。
+
+我们将从在桌面上安装 MetaMask 开始，但在此之前，先简单聊聊如何控制和管理密钥。
+
+[[control_responsibility]]
+=== 控制与责任
+
+((("Ethereum (generally)","control and responsibility", id="ix_02intro-asciidoc1", range="startofrange")))像以太坊这样的开放区块链之所以重要，是因为它们作为_去中心化_系统运行。这意味着很多事情，但其中一个关键点在于，每个以太坊用户都能够——也应该——控制自己的私钥，而私钥正是掌管资金和智能合约访问权限的关键。我们有时会把对资金和智能合约的访问组合称为“账户”或“钱包”。这些术语背后包含的功能可能很复杂，我们稍后会详细解释。不过，作为基本原则，你可以把它理解为：一个私钥对应一个“账户”。有些用户会选择把私钥交由第三方托管，例如在线交易所。在本书中，我们将教你如何掌控并管理自己的私钥。
+
+掌控带来重大责任。如果你丢失了私钥，就失去了对资金和合约的访问权。没有人能帮你找回——资金将永远被锁定。以下是一些帮助你承担这份责任的提示：
+
+* 不要自行发明安全措施。要使用经过验证的标准方法。
+
+* 账户越重要（例如资金价值越高或可访问的智能合约越关键），就应采取越严格的安全措施。
+
+* 最高等级的安全性来自与互联网隔离的设备（air-gapped device），但并非每个账户都需要这种级别。
+
+* 切勿以明文存储私钥，尤其不要以数字形式保存。值得庆幸的是，大多数现代用户界面甚至不会让你直接看到原始私钥。
+
+* ((("private keys","wallets and")))私钥可以以加密形式存储为数字“密钥库”文件。由于经过加密，解锁时需要密码。当你被要求设置密码时，请确保它足够强（即长度足够、随机性高），做好备份，并且不要分享。如果没有密码管理器，就把密码写下来，并保存在安全、秘密的位置。访问账户时，你需要密钥库文件和密码。
+
+* 不要把任何密码存放在数字文档、电子照片、截图、在线云盘、加密 PDF 等地方。再次强调，不要自行发明安全措施。请使用密码管理器或纸笔。
+
+* 当系统提示你将密钥备份为助记词（单词序列）时，请用纸笔做好实体备份。不要拖延，否则你会忘记。这些备份可以在系统数据全部丢失，或你忘记/遗失密码时，重建你的私钥。但攻击者也可以利用它们窃取你的私钥，因此切勿以数字形式保存，并把纸质备份妥善存放在上锁的抽屉或保险箱中。
+
+* 在转账大额资金前（尤其是转向新地址），先试一笔小额测试交易（例如不到 1 美元），并等待对方确认收到。
+
+* 创建新账户时，先向新地址发送一笔小额测试交易。收到后，再尝试从该账户发回一笔。有很多原因会导致账户创建失败，如果真出了问题，最好只是小损失。如果测试顺利，则一切就绪。
+
+* 公共区块浏览器可以让你独立查看交易是否被网络接受。不过，这种便利会影响隐私，因为你将地址暴露给区块浏览器，后者可能对你进行跟踪。
+
+* 不要向本书展示的任何地址汇款。这些地址的私钥已在书中公布，任何人都可以立即转走你的资金。
+
+现在我们已经了解了密钥管理和安全的一些基本最佳实践，接下来就动手使用 MetaMask 吧！(((range="endofrange", startref="ix_02intro-asciidoc1")))
+
+[[installing_MetaMask]]
+=== MetaMask 入门
+
+((("Ethereum (generally)","MetaMask basics", id="ix_02intro-asciidoc2", range="startofrange")))((("MetaMask","basics", id="ix_02intro-asciidoc3", range="startofrange")))打开 Google Chrome 浏览器，访问 https://chrome.google.com/webstore/category/extensions[]。
+
+搜索“MetaMask”，并点击狐狸头像的图标。你看到的页面应与 <<metamask_download>> 中展示的结果类似。
+
+[[metamask_download]]
+.MetaMask Chrome 扩展的详情页
+image::images/metamask_download.png["MetaMask Detail Page"]
+
+确认自己下载的是正版 MetaMask 非常重要，因为偶尔会有人设法让恶意扩展绕过 Google 的审查。正版扩展具有以下特征：
+
+* 地址栏中显示 ID +nkbihfbeogaeaoehlefnkodbefgpgknn+
+* 由 https://metamask.io 提供
+* 拥有超过 1,500 条评价
+* 拥有超过 1,000,000 名用户
+
+确认无误后，点击“Add to Chrome”进行安装。
+
+[[using_MetaMask]]
+==== 创建钱包
+
+((("MetaMask","wallet setup with", id="ix_02intro-asciidoc4", range="startofrange")))安装完成后，你应该会在浏览器工具栏看到新的狐狸图标。点击它开始使用。系统会让你接受条款与条件，然后输入密码创建新的以太坊钱包（见 <<metamask_password>>）。
+
+[[metamask_password]]
+.MetaMask Chrome 扩展的密码页面
+image::images/metamask_password.png["MetaMask Password Page"]
+
+[TIP]
+====
+该密码用于保护 MetaMask，防止任何能访问你浏览器的人直接使用它。
+====
+
+((("mnemonic code words","MetaMask and", id="ix_02intro-asciidoc5", range="startofrange")))设置密码后，MetaMask 会为你生成一个钱包，并展示由 12 个英文单词组成的_助记词备份_（见 <<metamask_mnemonic>>）。如果 MetaMask 或你的电脑出现问题，这些单词可以在任意兼容钱包中恢复资金访问。恢复时不需要密码，12 个单词就足够了。
+
+[TIP]
+====
+把助记词（12 个单词）抄写在纸上，一式两份。将两份纸质备份存放在两个分开的安全地点，比如防火保险箱、上锁的抽屉或银行保险柜。将纸质备份视作与你以太坊钱包中资产价值相当的现金。任何获取这些单词的人都能访问并盗走你的资金。
+====
+
+[[metamask_mnemonic]]
+.MetaMask 为你的钱包生成的助记词备份
+image::images/metamask_mnemonic.png["MetaMask Mnemonic Page"]
+
+确认你已经妥善保存助记词后，就能看到以太坊账户的详细信息，如 <<metamask_account>> 所示。(((range="endofrange", startref="ix_02intro-asciidoc5")))
+
+[[metamask_account]]
+.MetaMask 中的以太坊账户
+image::images/metamask_account.png["MetaMask Account Page"]
+
+账户页面会显示账户名称（默认是“Account 1”）、一个以太坊地址（示例中为 +0x9E713...+），以及一个彩色图标，帮助你在视觉上区分不同账户。页面顶部可以看到当前所连接的以太坊网络（示例中为“Main Network”）。
+
+恭喜你，已经设置好第一个以太坊钱包！(((range="endofrange", startref="ix_02intro-asciidoc4")))
+
+[[switching_networks]]
+==== 切换网络
+
+((("MetaMask","network choices")))如你在 MetaMask 账户页面所见，你可以在多个以太坊网络之间切换。默认情况下，MetaMask 会尝试连接主网。其他选项包括公共测试网、任意你选择的以太坊节点，或运行在本机（localhost）的私有区块链节点：
+
+Main Ethereum Network:: 以太坊主网。真正的 ETH、真正的价值，以及真实的后果。
+
+Ropsten Test Network:: 以太坊公共测试链与网络。该网络上的 ETH 没有任何价值。
+
+Kovan Test Network:: 采用 Aura 共识协议（授权证明，federated signing）的以太坊公共测试链与网络。该网络上的 ETH 没有价值。Kovan 测试网仅由 Parity 支持。其他以太坊客户端在较晚提出的 Clique 共识协议下实现授权证明。
+
+Rinkeby Test Network:: 采用 Clique 共识协议（授权证明，federated signing）的以太坊公共测试链与网络。该网络上的 ETH 没有价值。
+
+Localhost 8545:: 连接运行在与浏览器相同电脑上的节点。该节点可以属于任意公共区块链（主网或测试网），也可以是私有测试网。
+
+Custom RPC:: 允许你将 MetaMask 连接到任何具有 Geth 兼容远程过程调用（RPC）接口的节点。该节点可以属于任意公共或私有区块链。
+
+[NOTE]
+====
+MetaMask 钱包在连接到不同网络时会使用相同的私钥和以太坊地址。然而，你的以太坊地址在每个网络上的余额会不同。例如，你的密钥或许能在 Ropsten 控制以太和合约，但在主网上却没有。
+====
+
+[[getting_test_eth]]
+==== 获取测试以太
+
+((("ether (generally)","testnet")))((("MetaMask","and testnet ether")))((("test ether","obtaining")))((("testnet","ether for")))((("wallets","testnet ether and")))你的第一项任务是为钱包充值。我们不会在主网上操作，因为真实的以太需要花钱，而且处理它需要更多经验。现在，我们先给钱包充入一些测试网以太。
+
+((("Ropsten Test Network")))将 MetaMask 切换到_Ropsten Test Network_。点击 Deposit，再点击 Ropsten Test Faucet。MetaMask 会打开一个新网页，如 <<metamask_ropsten_faucet>> 所示。
+
+[[metamask_ropsten_faucet]]
+.MetaMask Ropsten 测试水龙头
+image::images/metamask_ropsten_faucet.png["MetaMask Ropsten Test Faucet"]
+
+你可能会注意到，该网页已经包含了 MetaMask 钱包的以太坊地址。MetaMask 会将启用以太坊功能的网页与你的钱包集成，它能“看到”网页上的以太坊地址，例如帮助你向显示以太坊地址的在线商店付款。如果网页提出请求，MetaMask 也能将你自己的钱包地址填入网页中的收款地址。在本页中，水龙头应用正在向 MetaMask 请求一个钱包地址，以便发送测试以太。
+
+点击绿色的“request 1 ether from faucet”按钮。页面下方会出现一个交易 ID，说明水龙头应用已经创建了一笔交易——向你付款。该交易 ID 类似如下：
+
+[[faucet_tx_id]]
+----
+0x7c7ad5aaea6474adccf6f5c5d6abed11b70a350fbc6f9590109e099568090c57
+----
+
+几秒钟后，Ropsten 矿工就会把这笔新交易打包，你的 MetaMask 钱包将显示 1 ETH 的余额。点击交易 ID，浏览器会跳转到_区块浏览器_，这是一种允许你可视化和探索区块、地址以及交易的网站。MetaMask 使用的是 https://etherscan.io/[Etherscan 区块浏览器]，这是最受欢迎的以太坊区块浏览器之一。包含这笔 Ropsten 测试水龙头付款的交易如 <<ropsten_block_explorer>> 所示。
+
+[[ropsten_block_explorer]]
+.Etherscan Ropsten 区块浏览器
+image::images/ropsten_block_explorer.png["Etherscan Ropsten Block Explorer"]
+
+这笔交易已经记录在 Ropsten 区块链上，任何人都可以随时查看，只需搜索交易 ID，或 http://bit.ly/2Q860Wk[访问该链接]。
+
+试着访问这个链接，或在 _ropsten.etherscan.io_ 网站上输入交易哈希，亲自查看一下。
+
+[[sending_eth_MetaMask]]
+==== 从 MetaMask 发送以太
+
+((("MetaMask","sending ether from", id="ix_02intro-asciidoc6", range="startofrange")))((("test ether","sending", id="ix_02intro-asciidoc7", range="startofrange")))从 Ropsten 测试水龙头收到第一笔测试以太后，就可以尝试发送，以测试向水龙头返还一些以太。你可以看到 Ropsten Test Faucet 页面上有“donate 1 ETH”选项，这样在完成测试后就可以把剩余的测试以太归还，好让其他人也能使用。虽然测试以太没有价值，但有人会囤积，导致其他人难以使用测试网络。囤积测试以太是不被认可的！
+
+所幸我们不是测试以太囤积者。点击橙色的“1 ether”按钮，让 MetaMask 创建一笔向水龙头支付 1 以太的交易。MetaMask 会准备好交易，并弹出一个确认窗口，如 <<send_to_faucet>> 所示。
+
+[[send_to_faucet]]
+.向水龙头发送 1 以太
+image::images/send_to_faucet.png["Sending 1 ether to the faucet"]
+
+糟糕！你可能注意到交易无法完成——MetaMask 提示余额不足。乍一看这很令人困惑：你有 1 ETH，想发送 1 ETH，为什么 MetaMask 却说余额不足？
+
+((("gas","basics")))原因在于_燃料费（gas）_的成本。每笔以太坊交易都需要支付费用，矿工通过验证交易来收取这笔费用。以太坊中的费用以一种称为 gas 的虚拟货币计价，你在交易中使用以太支付 gas。
+
+[NOTE]
+====
+((("gas","on test networks")))测试网络同样需要支付费用。没有费用，测试网络的行为就会不同于主网，从而无法作为合格的测试平台。燃料费还能保护测试网络不受 DoS 攻击和设计糟糕的合约（例如无限循环）的影响，就像保护主网一样。
+====
+
+当你发送交易时，MetaMask 会计算最近成功交易的平均 gas 价格，此处为 3 gwei（gwei 表示 gigawei）。如前文 <<ether_units>> 所述，wei 是以太货币的最小 pass:[<span class="keep-together">子单位</span>]。gas 限额设置为发送基础交易的成本，即 21,000 gas 单位。因此，你需要支付的最大 ETH 数量为 3 * 21,000 gwei = 63,000 gwei = 0.000063 ETH。（请注意，平均 gas 价格会波动，因为它主要由矿工决定。我们会在后续章节看到如何调高/调低 gas 限额，以在需要时让交易获得优先处理。）
+
+总结一下：发起一笔 1 ETH 的交易总成本为 1.000063 ETH。MetaMask 在显示总额时会令人困惑地将其_四舍五入到_ 1 ETH，但实际需要 1.000063 ETH，而你只有 1 ETH。点击 Reject 取消这笔交易。
+
+让我们再获取一些测试以太！再次点击绿色的“request 1 ether from the faucet”按钮，等待几秒钟。别担心，水龙头通常有足够的以太，只要你请求就会发放。
+
+当余额达到 2 ETH 后，再试一次。这次点击橙色的“1 ether”捐赠按钮时，你的余额足以完成交易。MetaMask 弹出支付窗口后，点击 Submit。最后你应该会看到余额变为 0.999937 ETH，因为你向水龙头发送了 1 ETH，并支付了 0.000063 ETH 的 gas。(((range="endofrange", startref="ix_02intro-asciidoc7")))(((range="endofrange", startref="ix_02intro-asciidoc6")))
+
+[[explore_tx_history]]
+==== 查看地址的交易历史
+
+((("addresses","exploring transaction history of", id="ix_02intro-asciidoc8", range="startofrange")))((("MetaMask","exploring transaction history of an address with", id="ix_02intro-asciidoc9", range="startofrange")))此时，你已经熟练掌握使用 MetaMask 发送和接收测试以太。你的钱包至少收到两笔付款，并发送了至少一笔。你可以使用 _ropsten.etherscan.io_ 区块浏览器查看所有这些交易。可以复制你的钱包地址，粘贴到区块浏览器的搜索框，也可以让 MetaMask 替你打开该页面。在 MetaMask 的账户图标旁边，有一个显示三个点的按钮。点击它会打开与账户相关的菜单（见 <<metamask_account_context_menu>>）。
+
+[[metamask_account_context_menu]]
+.MetaMask 账户上下文菜单
+image::images/metamask_account_context_menu.png["MetaMask account context menu"]
+
+[[block_explorer_account_history]]
+.Etherscan 上的地址交易历史
+image::images/block_explorer_account_history.png["Address Transaction History on Etherscan"]
+
+在这里，你可以看到以太坊地址的完整交易历史。页面会展示 Ropsten 区块链上所有以你的地址为发送方或接收方的交易。点击其中几笔交易，可以查看更多详细信息。
+
+你也可以探索任意地址的交易历史。查看一下 Ropsten 测试水龙头地址的交易记录（提示：它是你账户最早那笔收款中的“sender”地址）。你可以看到该水龙头向你以及其他地址发送的所有测试以太。你看到的每笔交易都会引导你发现更多的地址和交易。不久你就会迷失在彼此关联的数据迷宫中。公共区块链蕴藏着海量信息，所有这些信息都可以通过程序化方式进行探索，我们会在后续示例中看到这一点(((range="endofrange", startref="ix_02intro-asciidoc9")))(((range="endofrange", startref="ix_02intro-asciidoc8"))).(((range="endofrange", startref="ix_02intro-asciidoc3")))(((range="endofrange", startref="ix_02intro-asciidoc2")))
+
+[[intro_world_computer]]
+=== 认识世界计算机
+
+((("Ethereum (generally)","and EVM")))((("EVM (Ethereum Virtual Machine)","as world computer")))((("world computer, Ethereum as")))至此，你已经创建了一个钱包，并完成了以太的收发。到目前为止，我们一直把以太坊当作一种加密货币来看待。但以太坊远不止于此。事实上，加密货币功能只是以太坊作为去中心化世界计算机的附属功能。((("smart contracts","ether and")))以太用于支付运行_智能合约_所需的费用，而智能合约则是在一个名为_以太坊虚拟机_（Ethereum Virtual Machine，简称 EVM）的仿真计算机上运行的程序。
+
+EVM 是一个全球单例，这意味着它表现得就像一台在任何地方都存在的全球单实例计算机。以太坊网络上的每个节点都会运行本地副本的 EVM，用于验证合约执行，而以太坊区块链会记录这台世界计算机在处理交易和智能合约时不断变化的_状态_。我们将在 <<evm_chapter>> 中详细讨论。
+
+[[EOA_contracts]]
+=== 外部拥有账户（EOA）与合约
+
+((("contract accounts", seealso="smart contracts")))((("EOA (Externally Owned Account)","basics")))((("Ethereum (generally)","EOAs and contracts")))((("smart contracts","basics")))你在 MetaMask 钱包中创建的账户称为_外部拥有账户_（Externally Owned Account，简称 EOA）。外部拥有账户拥有私钥；掌握私钥就意味着能够控制对资金或合约的访问。你也许已经猜到，还有另一种类型的账户：那就是_合约账户_。合约账户包含智能合约代码，而简单的 EOA 不具备。合约账户没有私钥，它由智能合约代码的逻辑来“拥有”（和控制）：这段在合约账户创建时记录在以太坊区块链上的软件，会由 EVM 执行。
+
+合约拥有地址，就像 EOA 一样。合约也能发送和接收以太，也与 EOA 无异。不过，当交易的目标是合约地址时，会触发合约在 EVM 中_运行_，并使用这笔交易及其数据作为输入。除以太之外，交易还可以包含_数据_，用来指示合约应运行哪个具体函数，以及传入哪些参数。通过这种方式，交易可以_调用_合约中的函数。
+
+请注意，因为合约账户没有私钥，它无法_发起_交易。只有 EOA 能发起交易，而合约可以通过调用其他合约来_响应_交易，构建复杂的执行路径。一个典型的使用场景是，某个 EOA 向多重签名智能合约钱包发送请求交易，由后者再向另一地址转出 ETH。典型的 DApp 编程模式是让合约 A 调用合约 B，以便在合约 A 的用户之间维护共享状态。
+
+接下来的几个小节中，我们将编写第一个合约。之后，你将学习如何在 Ropsten 测试网上，使用 MetaMask 钱包和测试以太来创建、注资并使用该合约。
+
+[[simple_contract_example]]
+=== 简单合约：测试以太水龙头
+
+((("contract accounts","creating", seealso="Faucet.sol contract", id="ix_02intro-asciidoc10", range="startofrange")))((("Faucet.sol contract (test example)","creating", id="ix_02intro-asciidoc11", range="startofrange")))以太坊拥有多种高级语言，都可以用来编写合约并生成 EVM 字节码。你可以在 <<high_level_languages>> 中了解其中许多重要且有趣的语言。Solidity 是目前编写智能合约时最常用的高级语言。((("Wood, Dr. Gavin","and Solidity")))Solidity 由本书合著者 Gavin Wood 博士创建，如今已成为以太坊（以及其他平台）最广泛使用的语言。我们将使用 Solidity 来编写第一个合约。
+
+((("Solidity","faucet.sol and")))在第一个示例（<<solidity_faucet_example>>）中，我们将编写一个控制_水龙头_的合约。你已经使用水龙头在 Ropsten 测试网上获取测试以太。水龙头是个相当简单的机制：任何请求者都能从中领取以太，并且可以定期补充。你可以由人工或 Web 服务器控制的钱包来实现水龙头。
+
+[[solidity_faucet_example]]
+.Faucet.sol：实现水龙头的 Solidity 合约
+====
+[source,solidity,linenums]
+----
+include::code/Solidity/Faucet.sol[]
+----
+====
+
+[NOTE]
+====
+你可以在 https://github.com/ethereumbook/ethereumbook/[本书的 GitHub 仓库] 的 _code_ 子目录中找到所有代码示例。我们的 _Faucet.sol_ 合约位于：
+
+----
+code/Solidity/Faucet.sol
+----
+====
+
+这是一个非常简单的合约，几乎已经简单到极限。但它也是一个_存在缺陷_的合约，包含了不少糟糕的实践和安全漏洞。我们会在后面逐一分析这些缺陷，从中学习。不过现在，我们先逐行理解这个合约的作用和运行方式。你会很快发现，Solidity 的许多元素与现有编程语言（例如 JavaScript、Java 或 Cpass:[++]）非常相似。
+
+第一行是一条注释：
+
+[[comment]]
+[source,solidity]
+----
+// SPDX-License-Identifier: CC-BY-SA-4.0
+----
+
+注释是写给人看的，不会被编译进可执行的 EVM 字节码。我们通常将注释放在所解释代码的上一行，有时也会写在同一行。注释以两个斜杠开头：+//+。从第一个斜杠起到行尾的内容都会像空行一样被忽略。
+
+几行之后，就是我们实际的合约定义：
+
+[[contract_definition]]
+[source,solidity]
+----
+contract Faucet {
+----
+
+这行声明了一个 +contract+ 对象，类似于其他面向对象语言中的 +class+ 声明。合约定义包含花括号 pass:[(<code>{}</code>)] 之间的所有代码，这些花括号定义了一个_作用域_，与许多编程语言中使用花括号的方式类似。
+
+接下来，我们让合约可以接受任意传入金额：
+
+[[receive_function]]
+[source,solidity]
+----
+receive () external payable {}
+----
+
+((("receive function")))如果触发合约的交易没有指定任何已声明的函数，或者交易不包含数据（因此只是普通的以太转账），就会调用 receive 函数。合约最多只能有一个这样的无名 receive 函数，它用于接收以太。因此，我们将其声明为 external 且 payable，也就是它能够接收并接受进入合约的以太。函数体为空的花括号 pass:[(<code>{}</code>)] 表示它除了接收以太之外什么也不做。如果我们向合约地址发送以太（就像对待钱包一样），该函数会负责处理。
+
+之后，我们声明 +Faucet+ 合约的第一个函数：
+
+[[withdraw_function]]
+[source,solidity]
+----
+function withdraw(uint withdraw_amount) public {
+----
+
+该函数名为 +withdraw+，接受一个名为 +withdraw_amount+ 的无符号整数（+uint+）参数。它被声明为 public 函数，意味着其他合约可以调用它。函数定义写在花括号内。+withdraw+ 函数的第一部分设置了取款上限：
+
+[[withdraw_limit]]
+[source,solidity]
+----
+require(withdraw_amount <= 100000000000000000);
+----
+
+这里使用 Solidity 内置函数 +require+ 来测试先决条件，确保 +withdraw_amount+ 小于或等于 100,000,000,000,000,000 wei，这是以太的基础单位（参见 <<ether_denominations>>），相当于 0.1 以太。如果 +withdraw+ 函数在被调用时的 +withdraw_amount+ 超过该值，+require+ 函数会让合约执行停止，并抛出_异常_。请注意，Solidity 中的语句需要以分号结尾。
+
+这部分是水龙头合约的主要逻辑。它通过设置取款上限来控制资金流出。虽然控制方式很简单，但也展示了可编程区块链的力量：去中心化软件可以控制资金。
+
+接下来是真正的提款操作：
+
+[[withdraw_command]]
+[source,solidity]
+----
+msg.sender.transfer(withdraw_amount);
+----
+
+这里发生了几件有趣的事情。+msg+ 对象是所有合约都能访问的输入之一，代表触发当前合约执行的交易。属性 +sender+ 是交易的发送地址。+transfer+ 函数是一个内置函数，它会把以太从当前合约转到发送方地址。换句话说，就是把 +withdraw_amount+ 转给触发此次合约执行的 +msg+ 的 +sender+。+transfer+ 函数仅接受一个参数，即转账金额。我们把几行前函数参数 +withdraw_amount+ 传给它。
+
+紧接着下一行的右花括号表示 +withdraw+ 函数定义的结束。
+
+再往下的最后一个右花括号标志着 +Faucet+ 合约定义的结束。就是这么简单！(((range="endofrange", startref="ix_02intro-asciidoc11")))(((range="endofrange", startref="ix_02intro-asciidoc10")))
+
+[[compile_faucet_contract]]
+=== 编译水龙头合约
+
+((("compiling","Faucet.sol contract", id="ix_02intro-asciidoc12", range="startofrange")))((("Faucet.sol contract (test example)","compiling", id="ix_02intro-asciidoc13", range="startofrange")))现在我们有了第一个合约示例，需要使用 Solidity 编译器将 Solidity 代码转换为 EVM 字节码，以便 EVM 在区块链上执行。
+
+Solidity 编译器可以作为独立可执行文件，也可以作为各种框架的一部分，还可以与集成开发环境（IDE）打包。为求简单，我们将使用最受欢迎的 IDE 之一——_Remix_。
+
+((("Remix IDE")))在安装好 MetaMask 的 Chrome 浏览器中，访问 https://remix.ethereum.org[] 打开 Remix IDE。
+
+首次加载 Remix 时，它会打开一个名为 _ballot.sol_ 的示例合约。我们不需要它，可以点击标签页角落的 +x+ 关闭，如 <<remix_close_tab>> 所示。
+
+[[remix_close_tab]]
+.关闭默认示例标签页
+image::images/remix_close_tab.png["Close the default example tab"]
+
+现在，点击左上角工具栏中的圆形加号打开新标签页，如 <<remix_toolbar>> 所示。将新文件命名为 _Faucet.sol_。
+
+[[remix_toolbar]]
+.点击加号打开新标签页
+image::images/remix_toolbar.png["Click the plus sign to open a new tab"]
+
+打开新标签后，把示例中的 _Faucet.sol_ 代码复制粘贴进去，如 <<remix_faucet_load>> 所示。
+
+[[remix_faucet_load]]
+.将 Faucet 示例代码复制到新标签
+image::images/remix_faucet_load.png["Copy the Faucet example code into the new tab"]
+
+当 _Faucet.sol_ 合约载入 Remix IDE 后，IDE 会自动编译代码。如果一切顺利，你会在右侧的 Compile 选项卡下看到绿色的“Faucet”框，表示编译成功（见 <<remix_compile>>）。
+
+[[remix_compile]]
+.Remix 成功编译 Faucet.sol 合约
+image::images/remix_compile.png[""]
+
+如果出现问题，很可能是 Remix IDE 使用的 Solidity 编译器版本不是 0.6。在这种情况下，我们的 pragma 指令会阻止 _Faucet.sol_ 编译。要更改编译器版本，请前往 Settings 选项卡，将版本设置为 0.6.0，然后重试。
+
+现在，Solidity 编译器已经将 _Faucet.sol_ 编译成 EVM 字节码。如果你好奇，字节码大致如下所示：
+
+[[faucet_bytecode]]
+----
+PUSH1 0x80 PUSH1 0x40 MSTORE CALLVALUE DUP1 ISZERO PUSH2 0x10 JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST POP PUSH1 0xF4 DUP1 PUSH2 0x1F PUSH1 0x0 CODECOPY PUSH1 0x0 RETURN INVALID PUSH1 0x80 PUSH1 0x40 MSTORE PUSH1 0x4 CALLDATASIZE LT PUSH1 0x1F JUMPI PUSH1 0x0 CALLDATALOAD PUSH1 0xE0 SHR DUP1 PUSH4 0x2E1A7D4D EQ PUSH1 0x2A JUMPI PUSH1 0x25 JUMP JUMPDEST CALLDATASIZE PUSH1 0x25 JUMPI STOP JUMPDEST PUSH1 0x0 DUP1 REVERT JUMPDEST CALLVALUE DUP1 ISZERO PUSH1 0x35 JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST POP PUSH1 0x5F PUSH1 0x4 DUP1 CALLDATASIZE SUB PUSH1 0x20 DUP2 LT ISZERO PUSH1 0x4A JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST DUP2 ADD SWAP1 DUP1 DUP1 CALLDATALOAD SWAP1 PUSH1 0x20 ADD SWAP1 SWAP3 SWAP2 SWAP1 POP POP POP PUSH1 0x61 JUMP JUMPDEST STOP JUMPDEST PUSH8 0x16345785D8A0000 DUP2 GT ISZERO PUSH1 0x75 JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST CALLER PUSH20 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF AND PUSH2 0x8FC DUP3 SWAP1 DUP2 ISZERO MUL SWAP1 PUSH1 0x40 MLOAD PUSH1 0x0 PUSH1 0x40 MLOAD DUP1 DUP4 SUB DUP2 DUP6 DUP9 DUP9 CALL SWAP4 POP POP POP POP ISZERO DUP1 ISZERO PUSH1 0xBA JUMPI RETURNDATASIZE PUSH1 0x0 DUP1 RETURNDATACOPY RETURNDATASIZE PUSH1 0x0 REVERT JUMPDEST POP POP JUMP INVALID LOG2 PUSH5 0x6970667358 0x22 SLT KECCAK256 STOP CODECOPY 0xDC DUP16 0xD SGT PUSH6 0xD2245039EDD7 RETURN CALLDATALOAD 0xC2 0xE4 SWAP9 0xF6 0x2C 0xF8 0xB3 OR JUMPDEST 0xAC 0xD8 CREATE2 SSTORE 0x4E SIGNEXTEND PUSH4 0x3164736F PUSH13 0x634300060C0033000000000000
+----
+
+庆幸我们使用的是像 Solidity 这样的高级语言，而不是直接用 EVM 字节码编程吧！我也这么想。(((range="endofrange", startref="ix_02intro-asciidoc13")))(((range="endofrange", startref="ix_02intro-asciidoc12")))
+
+[[create_contract]]
+=== 在区块链上创建合约
+
+((("blockchain","creating contract on", id="ix_02intro-asciidoc14", range="startofrange")))((("Faucet.sol contract (test example)","on the blockchain", id="ix_02intro-asciidoc15", range="startofrange")))至此，我们已经拥有一个合约，并把它编译成字节码。接下来要做的，是将合约“注册”到以太坊区块链上。我们将在 Ropsten 测试网上部署合约，因此需要向这条链提交合约。
+
+((("zero address","contract registration")))在区块链上注册合约需要创建一笔特殊交易，其目标地址为 +0x0000000000000000000000000000000000000000+，也被称为_零地址_。零地址是以太坊用来指示“我要注册合约”的特殊地址。幸运的是，Remix IDE 会帮你完成这一切，并把交易发送到 MetaMask。
+
+((("Remix IDE", id="ix_02intro-asciidoc16", range="startofrange")))首先切换到 Run 选项卡，在 Environment 下拉框中选择 Injected Web3。这样就把 Remix IDE 连接到 MetaMask 钱包，而 MetaMask 又会连接到 Ropsten 测试网络。完成后，你会在 Environment 下看到 Ropsten，并且 Account 下拉框会显示你的钱包地址（见 <<remix_run>>）。
+
+[[remix_run]]
+.Remix IDE 的 Run 选项卡，已选择 Injected Web3 环境
+image::images/remix_run.png["Remix IDE Run tab, with Injected Web3 environment selected"]
+
+在刚确认过的 Run 设置下方，就是可以创建的 +Faucet+ 合约。点击 <<remix_run>> 中的 Deploy 按钮。
+
+Remix 会构造这笔特殊的“创建”交易，MetaMask 则会弹出窗口请你确认，如 <<remix_metamask_create>> 所示。你会注意到这笔合约创建交易不携带以太，但包含 275 字节的数据（即编译后的合约），并会消耗 3 gwei 的 gas。点击 Confirm 批准它。
+
+[[remix_metamask_create]]
+.MetaMask 展示合约创建交易
+image::images/remix_metamask_create.png["MetaMask showing the contract creation transaction"]
+
+接下来要稍等片刻。合约需要大约 15 到 30 秒才能在 Ropsten 上被打包。Remix 表面上似乎没有什么动静，请耐心等待。
+
+合约创建完成后，它会显示在 Run 选项卡的底部（见 <<remix_contract_interact>>）。
+
+[[remix_contract_interact]]
+.Faucet 合约“上线”啦！
+image::images/remix_contract_interact.png["The Faucet contract is ALIVE!"]
+
+注意，此时 +Faucet+ 合约已经拥有自己的地址：Remix 会显示“Faucet at 0x72e...c7829”（你的地址会有所不同）。右侧的小剪贴板图标可以把合约地址复制到剪贴板，我们将在下一节用到它。(((range="endofrange", startref="ix_02intro-asciidoc16")))(((range="endofrange", startref="ix_02intro-asciidoc15")))
+
+[[interact_contract]]
+=== 与合约交互
+
+((("Faucet.sol contract (test example)","interacting with", id="ix_02intro-asciidoc17", range="startofrange")))让我们回顾一下：以太坊合约是运行在名为 EVM 的虚拟机中的程序，用于控制资金。它们通过一笔特殊交易被创建，这笔交易会把字节码提交到区块链上。合约一旦在链上创建，就像钱包一样拥有一个以太坊地址。任何人向合约地址发送交易，都会让合约在 EVM 中运行，并把该交易作为输入。发送到 pass:[<span class="keep-together">合约</span>] 地址的交易可以携带以太或数据，甚至两者兼有。如果包含以太，就会被“存入”合约余额；如果包含数据，数据可以指定要调用的函数，并向其传递参数。
+
+[[view_contract_address]]
+==== 在区块浏览器中查看合约地址
+
+((("Faucet.sol contract (test example)","viewing contract address in a block explorer")))现在，合约已经记录在区块链上，我们也能看到它的以太坊地址。让我们到 _ropsten.etherscan.io_ 区块浏览器中看看合约的样子。在 Remix IDE 中，点击合约名称旁的剪贴板图标复制地址（见 <<remix_contract_address>>）。
+
+[[remix_contract_address]]
+.从 Remix 中复制合约地址
+image::images/remix_contract_address.png["Copy the contract address from Remix"]
+
+保持 Remix 打开，稍后还会用到。现在在浏览器中访问 _ropsten.etherscan.io_，把刚才复制的地址粘贴到搜索框中。你会看到该合约的以太坊地址历史，如 <<etherscan_contract_address>> 所示。(((range="endofrange", startref="ix_02intro-asciidoc17")))
+
+[[etherscan_contract_address]]
+.在 Etherscan 区块浏览器中查看 Faucet 合约地址
+image::images/etherscan_contract_address.png["View the Faucet contract address in the etherscan block explorer"]
+
+[[fund_contract]]
+==== 为合约注资
+
+((("Faucet.sol contract (test example)","sending ether to", id="ix_02intro-asciidoc18", range="startofrange")))目前，合约历史中只有一笔交易：创建合约的交易。正如你所见，合约的余额也为零，因为我们在创建交易中没有向合约发送任何以太（虽然我们完全可以这么做）。
+
+水龙头需要资金！我们的第一个任务，就是使用 MetaMask 向合约发送以太。此时你的剪贴板里应该还保留着合约地址（如果没有，请在 Remix 中重新复制）。打开 MetaMask，像向其他任意以太坊地址转账那样，向它发送 1 以太（见 <<metamask_send_to_contract>>）。
+
+[[metamask_send_to_contract]]
+.向合约地址发送 1 以太
+image::images/metamask_send_to_contract.png[""]
+
+大约过一分钟，刷新 Etherscan 区块浏览器，就会看到一笔新的交易进入合约地址，余额也更新为 1 以太。
+
+还记得 _Faucet.sol_ 代码中那个无名的 external payable 函数吗？它看起来像这样：
+
+[[receive_function_review]]
+[source,solidity]
+----
+receive () external payable {}
+----
+
+当你向合约地址发送交易且没有指定要调用的函数时，就会触发这个默认函数。由于我们将其声明为 +payable+，它会接受并把 1 以太存入合约账户余额。你的交易让合约在 EVM 中运行并更新了余额。你已经为自己的水龙头完成注资了！(((range="endofrange", startref="ix_02intro-asciidoc18")))
+
+[[withdraw_from_contract]]
+==== 从合约中提款
+
+((("Faucet.sol contract (test example)","withdrawing funds from", id="ix_02intro-asciidoc19", range="startofrange")))((("withdrawal of funds from contract", id="ix_02intro-asciidoc20", range="startofrange")))接下来，让我们从水龙头提取一些资金。提款需要构造一笔交易，调用 +withdraw+ 函数并传入 +withdraw_amount+ 参数。为简单起见，我们让 Remix 帮我们构造这笔交易，MetaMask 则负责弹出确认。
+
+回到 Remix 标签页，在 Run 选项卡中找到合约。你会看到一个橙色的 +withdraw+ 按钮和一个名为 +uint256 withdraw_amount+ 的输入框（见 <<remix_contract_withdraw>>）。
+
+[[remix_contract_withdraw]]
+.Remix 中 Faucet.sol 的 withdraw 函数
+image::images/remix_contract_interact.png["The withdraw function of Faucet.sol, in Remix"]
+
+这是 Remix 与合约交互的界面，可以帮助我们构造调用合约函数的交易。我们将在输入框中填入 +withdraw_amount+，然后点击 withdraw 按钮来生成交易。
+
+首先确定 +withdraw_amount+ 的数值。我们希望尝试提现 0.1 以太，这是合约允许的最大取款金额。记住，以太坊内部的货币值都以 wei 表示，而 +withdraw+ 函数也期望以 wei 为单位。因此我们需要输入的金额是 0.1 以太，即 100,000,000,000,000,000 wei（1 后面带 17 个零）。
+
+[TIP]
+====
+由于 JavaScript 的限制，像 10^17 这么大的数字无法直接由 Remix 处理。因此，我们需要用双引号将其包裹，使 Remix 将其视为字符串并按 +BigNumber+ 处理。如果不加引号，Remix IDE 会处理失败并显示 “Error encoding arguments: Error: Assertion failed.”
+====
+
+在 +withdraw_amount+ 输入框中输入 "100000000000000000"（包括引号），然后点击 withdraw 按钮（见 <<remix_withdraw>>）。
+
+[[remix_withdraw]]
+.在 Remix 中点击“withdraw”创建提款交易
+image::images/remix_withdraw.png[""]
+
+MetaMask 会弹出交易窗口让你确认。点击 Confirm，将调用 withdraw 函数的交易发送出去（见 <<metamask_withdraw>>）。
+
+[[metamask_withdraw]]
+.MetaMask 中调用 withdraw 函数的交易
+image::images/metamask_withdraw.png["MetaMask transaction to call the withdraw function"]
+
+等待片刻，然后刷新 Etherscan 区块浏览器，在 +Faucet+ 合约地址历史中看到这笔交易（见 <<etherscan_withdrawal_tx>>）。
+
+[[etherscan_withdrawal_tx]]
+.Etherscan 显示调用 withdraw 函数的交易
+image::images/etherscan_withdrawal_tx.png["Etherscan shows the transaction calling the withdraw function"]
+
+我们看到一笔新交易，其目标是合约地址，金额为 0 以太。合约余额已经变化为 0.9 以太，因为它按照请求向我们发送了 0.1 以太。但我们在_合约地址历史_中没有看到“OUT”交易。
+
+提款去哪里了？合约地址历史页面出现了一个名为 Internal Transactions 的新标签。((("internal transaction (message)")))因为这笔 0.1 以太是由合约代码发出的，所以它是一笔内部交易（也称为_消息_）。点击该标签即可看到相关记录（见 <<etherscan_withdrawal_internal>>）。
+
+[[etherscan_withdrawal_internal]]
+.Etherscan 显示合约转出以太的内部交易
+image::images/etherscan_withdrawal_internal.png["Etherscan shows the internal transaction transferring ether out from the contract"]
+
+这笔“内部交易”由合约中的以下代码触发（来自 _Faucet.sol_ 的 pass:[<code><span class="keep-together">withdraw</span></code>] 函数）：
+
+[[withdraw_command_review]]
+[source,solidity]
+----
+msg.sender.transfer(withdraw_amount);
+----
+
+总结一下：你从 MetaMask 钱包发出了一笔交易，其中包含调用 +withdraw+ 函数并传入 0.1 以太作为 +withdraw_amount+ 的指令。该交易促使合约在 EVM 中运行。当 EVM 执行 +Faucet+ 合约的 +withdraw+ 函数时，首先调用 +require+，验证所请求金额不超过 0.1 以太的上限。随后调用 +transfer+，向你发送这笔以太。执行 +transfer+ 时产生了一笔内部交易，将 0.1 以太从合约余额转入你的钱包地址。这就是你在 Etherscan 的 Internal Transactions 标签中看到的记录(((range="endofrange", startref="ix_02intro-asciidoc20")))(((range="endofrange", startref="ix_02intro-asciidoc19"))).(((range="endofrange", startref="ix_02intro-asciidoc14")))
+
+[[intro_conclusion]]
+=== 小结
+
+在本章中，你使用 MetaMask 设置了一个钱包，并在 Ropsten 测试网上通过水龙头为其充值。你向钱包的以太坊地址收款，又向水龙头的地址付款。
+
+随后，你用 Solidity 编写了一个水龙头合约。你使用 Remix IDE 将该合约编译成 EVM 字节码，并借助 Remix 构造交易，在 Ropsten 区块链上创建了 +Faucet+ 合约。合约创建后拥有自己的以太坊地址，你向其发送了以太。最后，你构造了一笔交易调用 +withdraw+ 函数，成功领取了 0.1 以太。合约检查了请求，并通过内部交易向你发送 0.1 以太。
+
+看似简单，但你已经成功地与运行在去中心化世界计算机上的“掌控资金的软件”互动。
+
+我们将在 <<smart_contracts_chapter>> 中进行更多智能合约编程，并在 <<smart_contract_security>> 中了解最佳实践与安全考量。(((range="endofrange", startref="ix_02intro-asciidoc0")))
