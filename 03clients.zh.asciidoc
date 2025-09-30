@@ -1,0 +1,498 @@
+[[ethereum_clients_chapter]]
+== 以太坊客户端
+
+((("clients, Ethereum", id="ix_03clients-asciidoc0", range="startofrange")))以太坊客户端是一种遵循以太坊规范、并在点对点网络上与其他以太坊客户端通信的软件应用。只要遵守参考规范和标准化通信协议，不同的以太坊客户端就可以实现_互操作_。尽管这些客户端由不同的团队以不同的编程语言实现，它们都“说”同一种协议、遵循同一套规则。因此，它们都能够用来操作并与同一条以太坊网络进行交互。
+
+以太坊是一个开源项目，所有主流客户端的源代码都以开源许可（例如 LGPL v3.0）发布，任何人都可以免费下载并用于任何用途。但“_开源_”不仅意味着免费使用，它还意味着以太坊由开放的志愿者社区开发，并且任何人都可以修改代码。人越多、代码越可信。
+
+((("Yellow Paper specification")))以太坊由一份名为《Yellow Paper》的形式化规范（参见<<references>>）所定义。
+
+((("Bitcoin","Ethereum definition compared to")))相比之下，比特币并没有任何形式化定义。比特币的“规范”是参考实现 Bitcoin Core，而以太坊的规范则记录在一份将英文描述与数学（形式化）描述结合的论文中。这份形式化规范以及各种以太坊改进提案共同定义了以太坊客户端的标准行为。《Yellow Paper》会随着以太坊重大变更而定期更新。
+
+正因为以太坊拥有清晰的形式化规范，才会出现许多独立开发、但能够互操作的客户端实现。以太坊在网络上运行的实现多样性胜过任何其他区块链，这通常被视为一件好事。事实也证明，这是一种抵御网络攻击的绝佳方式：某个客户端的实现策略被利用时，只会让该客户端的开发者忙于修复，而其他客户端几乎不受影响地让网络继续运行。
+
+=== 以太坊网络
+
+((("clients, Ethereum","Ethereum-based networks and", id="ix_03clients-asciidoc1", range="startofrange")))((("networks (Ethereum)","clients and", id="ix_03clients-asciidoc2", range="startofrange")))存在多种基于以太坊的网络，它们大体符合《Yellow Paper》中的形式化规范，但彼此之间可能互操作也可能不能。
+
+这些基于以太坊的网络包括 Ethereum、Ethereum Classic、Ella、Expanse、Ubiq、Musicoin 等。虽然在协议层面大体兼容，但这些网络常常拥有某些特性或属性，使得客户端维护者必须作出一些小调整才能支持各自的网络。因此，并非每个版本的以太坊客户端软件都能运行所有基于以太坊的区块链。
+
+目前，以太坊协议主要有六种实现，分别使用六种不同的编程语言编写：
+
+* Parity，使用 Rust 编写
+* Geth，使用 Go 编写
+* +cpp-ethereum+，使用 Cpass:[++] 编写
+* +pyethereum+，使用 Python 编写
+* Mantis，使用 Scala 编写
+* Harmony，使用 Java 编写
+
+本节将重点介绍最常见的两个客户端：Parity 和 Geth。我们将展示如何使用每个客户端搭建节点，并探索它们的一些命令行选项和应用程序编程接口（API）。
+
+[[full_node_importance]]
+==== 我应该运行全节点吗？
+
+((("full node","Ethereum-based networks and", id="ix_03clients-asciidoc3", range="startofrange")))((("networks (Ethereum)","full nodes and", id="ix_03clients-asciidoc4", range="startofrange")))区块链的健康、韧性和抗审查能力依赖于大量独立运营且地理上分散的全节点。每个全节点都可以帮助其他新节点获取区块数据以启动运行，同时为节点运营者提供对所有交易和合约的权威、独立验证。
+
+不过，运行全节点会消耗硬件资源和带宽。截至 2021 年 3 月，根据客户端配置不同，全节点可能需要下载多达 300 GB 的数据并存储在本地硬盘上。随着新交易和新区块的加入，这种数据负担每天都会迅速增长。我们会在<<requirements>>中进一步讨论这一话题。
+
+在主网这样的实时网络上运行全节点并不是以太坊开发的必要条件。大多数开发工作都可以通过连接到较小的公共测试链（_testnet_ 节点）、使用像 Ganache 这样的本地私有区块链，或是使用 Infura 这类服务商提供的云端以太坊客户端来完成。
+
+你也可以运行远程客户端，它不会存储区块链的本地副本，也不会验证区块和交易。这类客户端具备钱包功能，并可以创建、广播交易。远程客户端可以用于连接现有网络，例如你自己的全节点、公共区块链、公共或许可制（权威证明）测试网，或本地私有区块链。实际使用中，你很可能会使用 MetaMask、Emerald Wallet、pass:[<span class="keep-together">MyEtherWallet</span>] 或 MyCrypto 这类远程客户端，以便在不同节点选项之间自由切换。
+
+((("remote clients","wallet compared to")))((("wallets","remote clients compared to")))“远程客户端”和“钱包”两个术语常被交替使用，尽管它们存在一些差异。通常，远程客户端除了具备钱包的交易功能之外，还会提供一个 API（例如 web3.js API）。
+
+((("light/lightweight client")))不要把以太坊中的远程钱包与_轻客户端_混淆（轻客户端类似比特币中的简化支付验证客户端）。轻客户端会验证区块头，并利用 Merkle 证明来验证交易被包含在区块链中及其效果，从而获得与全节点相近的安全级别。相反，以太坊远程客户端不会验证区块头或交易，它们完全信任某个全节点来访问区块链，因此失去了显著的安全性和匿名性保障。要缓解这些问题，可以使用自己运行的全节点。
+
+[[full_node_adv_disadv]]
+==== 全节点的优劣势
+
+((("full node","advantages/disadvantages")))选择运行全节点有助于你所连接网络的运行，但也会给自己带来一定的成本。下面我们来看看它的优缺点。
+
+*优势：*
+
+* 支持以太坊生态中各类网络的韧性和抗审查能力
+* 权威地验证所有交易
+* 可以在无需中介的情况下与公共区块链上的任意合约交互
+* 可以直接向公共区块链部署合约，无需中介
+* 可以离线查询（只读）区块链状态（账户、合约等）
+* 查询区块链时无需让第三方知道你正在读取的信息
+
+*劣势：*
+
+* 需要大量且持续增长的硬件与带宽资源
+* 初次启动时可能需要数天时间才能完成同步
+* 必须维护、升级并保持在线，才能持续同步(((range="endofrange", startref="ix_03clients-asciidoc4")))(((range="endofrange", startref="ix_03clients-asciidoc3")))
+
+[[pub_test_adv_disadv]]
+==== 公共测试网的优劣势
+
+((("networks (Ethereum)","public testnet advantages/disadvantages")))((("public testnets")))((("testnet","public")))无论是否运行全节点，你都可能希望运行一个公共测试网节点。我们来看看使用公共测试网的优缺点。
+
+*优势：*
+
+* 与主网相比，测试网节点需要同步和存储的数据少得多——约 75 GB，具体取决于网络
+* 测试网节点可以在更短时间内完成同步
+* 部署合约或发送交易只需要测试用的 ether，它没有任何价值，可从多个“faucet”免费获取
+* 测试网是拥有大量其他用户和合约的公共区块链，并且“实时”运行
+
+*劣势：*
+
+* 在测试网上无法使用“真实”货币；它运行在测试 ether 上。因此，你无法在其中针对真实对手测试安全性，因为没有任何实际利益相关
+* 公共区块链的一些方面无法在测试网中真实复现。例如，虽然在测试网上发送交易仍然需要支付交易费，但由于 gas 免费，费用并非重要考量。此外，测试网不会像公共主网那样偶尔出现网络拥堵
+
+[[localtest_adv_dis]]
+==== 本地区块链模拟的优劣势
+
+((("Ganache","advantages/disadvantages")))((("local blockchain simulation")))((("networks (Ethereum)","local blockchain simulation advantages/disadvantages")))((("private blockchain")))((("single-instance private blockchain")))在许多测试场景下，最佳选择是启动一个单实例私有区块链。Ganache（前称 +testrpc+）是最受欢迎的本地区块链模拟之一，你可以在没有其他参与者的情况下与之交互。它与公共测试网有许多共同优劣，但也存在一些差异。
+
+*优势：*
+
+* 无需同步，磁盘几乎不占空间；第一个区块由你自己挖出
+* 无需获取测试 ether；Ganache 会预先初始化持有测试 ether 的账户
+* 没有其他用户，只有你自己
+* 没有其他合约，除非你选择从已有的以太坊节点 fork，否则只会包含你启动后部署的合约
+
+*劣势：*
+
+* 没有其他用户意味着它的行为与公共区块链不同。没有竞争交易空间或交易排序
+* 除了你之外没有其他矿工，挖矿更加可预测；因此无法测试公共区块链上出现的某些情境
+* 如果你从现有以太坊节点 fork，就需要该节点是归档节点，才能访问那些否则可能被修剪掉的历史状态
+
+(((range="endofrange", startref="ix_03clients-asciidoc2")))(((range="endofrange", startref="ix_03clients-asciidoc1")))
+
+
+[[running_client]]
+=== 运行以太坊客户端
+
+((("clients, Ethereum","running", id="ix_03clients-asciidoc5", range="startofrange")))如果你有时间和资源，即使只是为了学习，也应该尝试运行一个全节点。本节将介绍如何下载、编译并运行 Parity 和 Geth，以太坊客户端。这需要你对操作系统的命令行界面有所了解。无论你将它们作为全节点、测试网节点，还是本地私有区块链的客户端，安装这些客户端都是值得的。
+
+[[requirements]]
+==== 全节点的硬件需求
+
+((("clients, Ethereum","full node hardware requirements")))((("full node","hardware requirements")))在开始之前，请确保你的电脑拥有足够资源运行以太坊全节点。你至少需要 300 GB 的磁盘空间来存储以太坊区块链的完整副本。如果还想在以太坊测试网上运行全节点，则至少需要额外的 75 GB。下载 375 GB 的区块链数据需要很长时间，因此建议使用高速互联网连接。
+
+同步以太坊区块链对输入/输出（I/O）需求极高。最好使用固态硬盘（SSD）。如果使用机械硬盘（HDD），至少需要 8 GB RAM 用作缓存，否则系统可能过慢而无法完成同步。
+
+*最低配置：*
+
+* 2 核以上 CPU
+* 至少 300 GB 可用存储空间
+* 使用 SSD 时至少 4 GB RAM，如使用 HDD 则需 8 GB 以上
+* 8 Mbit/sec 以上的下载带宽
+
+这些是同步以太坊区块链完整（但已修剪）副本的最低要求。
+
+截至撰写本文时，Parity 的代码库更节省资源，因此硬件受限时使用 Parity 通常效果更好。
+
+如果你希望在合理时间内完成同步，并存放本书讨论的所有开发工具、库、客户端和区块链，就需要一台更强大的电脑。
+
+*推荐配置：*
+
+* 4 核以上的高速 CPU
+* 16 GB 以上 RAM
+* 至少 500 GB 可用空间的高速 SSD
+* 25 Mbit/sec 以上的下载带宽
+
+很难预测区块链的体积会以多快速度增长、何时需要更多磁盘空间，因此建议在开始同步前先确认区块链的最新大小。
+
+[NOTE]
+====
+这里列出的磁盘需求假设你以默认设置运行节点，即区块链会对旧状态数据进行“修剪”。如果改为运行保留全部状态的“归档”节点，则可能需要超过 1 TB 的磁盘空间。
+====
+
+以下链接提供区块链大小的最新估算：
+
+* https://bitinfocharts.com/ethereum/[Ethereum]
+
+* https://bitinfocharts.com/ethereum%20classic/[Ethereum Classic]
+
+[[sw_reqs]]
+==== 构建并运行客户端（节点）的软件需求
+
+((("clients, Ethereum","software requirements for building/running", id="ix_03clients-asciidoc6", range="startofrange")))本节介绍 Parity 和 Geth 客户端软件。我们假设你使用的是类 Unix 的命令行环境。示例展示的是在 Ubuntu GNU/Linux 操作系统、bash shell（命令行执行环境）中运行的命令及输出。
+
+通常，每条区块链都会有自己版本的 Geth，而 Parity 则通过同一个客户端下载支持多条基于以太坊的区块链（Ethereum、Ethereum Classic、pass:[<span class="keep-together">Ellaism</span>]、Expanse、Musicoin）。
+
+[TIP]
+=====
+((("$ symbol")))((("command-line interface")))((("shell commands")))((("terminal applications")))在本章的许多示例中，我们会使用操作系统的命令行界面（也称为“shell”），通过“终端”应用来访问。shell 会显示一个提示符；你输入命令后，shell 会回应一些文本并再次显示提示符。提示符在你的系统上可能看起来不同，但在以下示例中，我们用 +$+ 符号表示。在示例里，当你看到 +$+ 符号后的文本时，不要输入 +$+，而是输入紧随其后的命令（加粗显示），然后按 Enter 执行。示例中每个命令下方的行都是操作系统对该命令的输出。当你看到下一个 +$+ 前缀时，就表示这是新命令，你需要重复这一过程。
+=====
+
+在开始之前，你可能需要安装一些软件。如果你目前使用的这台电脑从未进行过软件开发，可能需要安装一些基础工具。在接下来的示例中，你需要安装源码管理系统 +git+、Go 编程语言及其标准库 +golang+，以及系统编程语言 Rust。
+
+((("git")))可以按照 https://git-scm.com[] 提供的说明安装 Git。
+
+((("Go", seealso="Geth (Go-Ethereum)")))可以按照 https://golang.org[] 上的说明安装 Go；如果使用 Ubuntu，可以参考 https://github.com/golang/go/wiki/Ubuntu[]。
+
+[NOTE]
+=====
+((("Geth (Go-Ethereum)")))Geth 的需求因版本而异，但如果使用 Go 1.13 或更高版本，大多数 Geth 版本都能编译。当然，应始终参考所选 Geth 版本的文档。
+
+你操作系统中预装或通过包管理器提供的 +golang+ 版本可能明显低于 1.13。如果遇到这种情况，请移除旧版本，并从 https://golang.org/[] 安装最新版本。
+=====
+
+((("Rust")))可以按照 https://www.rustup.rs/[] 上的说明安装 Rust。
+
+[NOTE]
+=====
+Parity 需要 Rust 1.27 或更高版本。
+=====
+
+((("Parity","libraries for")))Parity 还需要安装一些软件库，如 OpenSSL 和 +libudev+。在 Ubuntu 或 Debian GNU/Linux 兼容系统上，可以使用以下命令安装：
+
+++++
+<pre data-type="programlisting">
+$ <strong>sudo apt-get install openssl libssl-dev libudev-dev cmake clang</strong>
+</pre>
+++++
+
+在其他操作系统上，请使用你的操作系统的包管理器，或按照 https://github.com/paritytech/parity/wiki/Setup[Wiki 说明]安装所需库。
+
+现在你已经安装好了 +git+、+golang+、Rust 以及必备库，接下来开始动手吧！
+
+[[parity]]
+==== Parity
+
+((("clients, Ethereum","Parity and")))((("Parity","basics")))Parity 是一个全节点以太坊客户端和 DApp 浏览器的实现。它使用系统编程语言 Rust 从零开始构建，目标是打造模块化、安全、可扩展的以太坊客户端。Parity 由英国公司 Parity Tech 开发，并以 GPLv3 自由软件许可证发布。
+
+[NOTE]
+=====
+声明：本书作者之一 Gavin Wood 博士是 Parity Tech 的创始人，并编写了 Parity 客户端的大部分代码。Parity 约占以太坊客户端装机量的 25%。
+=====
+
+安装 Parity 时，你可以使用 Rust 包管理器 +cargo+，或从 GitHub 下载源代码。包管理器同样会下载源代码，因此这两种方式差别不大。接下来的部分将展示如何自行下载并编译 Parity。
+
+[[install_parity]]
+===== 安装 Parity
+
+((("Parity","installing")))https://wiki.parity.io/Setup[Parity Wiki] 提供了在不同环境和容器中构建 Parity 的说明。我们将演示如何从源码构建 Parity。这假设你已经使用 +rustup+ 安装了 Rust（见<<sw_reqs>>）。
+
+首先，从 GitHub 获取源代码：
+
+++++
+<pre data-type="programlisting">
+$ <strong>git clone https://github.com/paritytech/parity</strong>
+</pre>
+++++
+
+然后切换到 _parity_ 目录，并使用 +cargo+ 构建可执行文件：
+
+++++
+<pre data-type="programlisting">
+$ <strong>cd parity</strong>
+$ <strong>cargo install --path .</strong>
+</pre>
+++++
+
+如果一切顺利，你会看到类似如下的输出：
+
+++++
+<pre data-type="programlisting">
+$ <strong>cargo install --path .</strong>
+Installing parity-ethereum v2.7.0 (/root/parity)
+Updating crates.io index
+Updating git repository `https://github.com/paritytech/rust-ctrlc.git`
+Updating git repository `https://github.com/paritytech/app-dirs-rs`   Updating git repository
+
+ [...]
+
+Compiling parity-ethereum v2.7.0 (/root/parity)
+Finished release [optimized] target(s) in 10m 16s
+Installing /root/.cargo/bin/parity
+Installed package `parity-ethereum v2.7.0 (/root/parity)` (executable `parity`)
+$
+</pre>
+++++
+
+尝试使用 +--version+ 选项运行 +parity+，确认它已安装：
+
+++++
+<pre data-type="programlisting">
+$ <strong>parity --version</strong>
+Parity Ethereum Client.
+  version Parity-Ethereum/v2.7.0-unstable-b69a33b3a-20200124/x86_64-unknown-linux-gnu/rustc1.40.0
+Copyright 2015-2020 Parity Technologies (UK) Ltd.
+License GPLv3+: GNU GPL version 3 or later <ulink url="http://gnu.org/licenses/gpl.html">http://gnu.org/licenses/gpl.html</ulink>.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+By Wood/Paronyan/Kotewicz/Drwięga/Volf/Greeff
+   Habermeier/Czaban/Gotchac/Redman/Nikolsky
+   Schoedon/Tang/Adolfsson/Silva/Palm/Hirsz et al.
+$
+</pre>
+++++
+
+太好了！安装完成后，你就可以开始同步区块链，并尝试一些基本的命令行选项。
+
+[[go_ethereum_geth]]
+==== Go-Ethereum（Geth）
+
+((("clients, Ethereum","Geth and", id="ix_03clients-asciidoc7", range="startofrange")))((("Geth (Go-Ethereum)","basics", id="ix_03clients-asciidoc8", range="startofrange")))Geth 是以太坊基金会积极维护的 Go 语言实现，因此被视为“官方”的以太坊客户端实现。通常，每条基于以太坊的区块链都会提供自己的 Geth 实现。如果你运行 Geth，请务必通过以下代码仓库之一获取适合目标区块链的版本：
+
+* https://github.com/ethereum/go-ethereum[Ethereum]（或 https://geth.ethereum.org/）
+
+* https://github.com/etclabscore/go-ethereum[Ethereum Classic]
+
+* https://github.com/ellaism/go-ellaism[Ellaism]
+
+* https://github.com/expanse-org/go-expanse[Expanse]
+
+* https://github.com/Musicoin/go-musicoin[Musicoin]
+
+* https://github.com/ubiq/go-ubiq[Ubiq]
+
+[NOTE]
+=====
+你也可以跳过这些步骤，直接安装适用于目标平台的预编译二进制文件。这些预编译版本更易于安装，可以在上述任一仓库的“releases”栏目中找到。不过，亲自下载并编译软件会让你学到更多。
+=====
+
+[[cloning_repo]]
+===== 克隆代码仓库
+
+((("Geth (Go-Ethereum)","cloning Git repo for")))第一步是克隆 Git 仓库，从而获得源代码副本。
+
+在主目录或用于开发的任意目录下，可以使用以下 +git+ 命令创建本地副本：
+
+++++
+<pre data-type="programlisting">
+$ <strong>git clone &lt;Repository Link&gt;</strong>
+</pre>
+++++
+
+仓库复制到本地时，你将看到如下的进度信息：
+
+[[cloning_status]]
+----
+Cloning into 'go-ethereum'...
+remote: Enumerating objects: 86915, done.
+remote: Total 86915 (delta 0), reused 0 (delta 0), pack-reused 86915
+Receiving objects: 100% (86915/86915), 134.73 MiB | 29.30 MiB/s, done.
+Resolving deltas: 100% (57590/57590), done.
+----
+
+太好了！现在你已经拥有 Geth 的本地副本，可以为自己的平台编译可执行文件。
+
+[[build_geth_src]]
+===== 从源码构建 Geth
+
+((("Geth (Go-Ethereum)","building from source code")))要构建 Geth，请切换到下载源代码的目录，并使用 +make+ 命令：
+
+++++
+<pre data-type="programlisting">
+$ <strong>cd go-ethereum</strong>
+$ <strong>make geth</strong>
+</pre>
+++++
+
+如果一切顺利，你会看到 Go 编译器逐个构建组件，直到生成 +geth+ 可执行文件：
+
+[[making_geth_status]]
+----
+build/env.sh go run build/ci.go install ./cmd/geth
+>>> /usr/local/go/bin/go install -ldflags -X main.gitCommit=58a1e13e6dd7f52a1d...
+github.com/ethereum/go-ethereum/common/hexutil
+github.com/ethereum/go-ethereum/common/math
+github.com/ethereum/go-ethereum/crypto/sha3
+github.com/ethereum/go-ethereum/rlp
+github.com/ethereum/go-ethereum/crypto/secp256k1
+github.com/ethereum/go-ethereum/common
+[...]
+github.com/ethereum/go-ethereum/cmd/utils
+github.com/ethereum/go-ethereum/cmd/geth
+Done building.
+Run "build/bin/geth" to launch geth.
+$
+----
+
+让我们在不真正启动的情况下确认 +geth+ 是否可以运行：
+
+++++
+<pre data-type="programlisting">
+$ <strong>./build/bin/geth version</strong>
+
+Geth
+Version: 1.9.11-unstable
+Git Commit: 0b284f6c6cfc6df452ca23f9454ee16a6330cb8e
+Git Commit Date: 20200123
+Architecture: amd64
+Protocol Versions: [64 63]
+Go Version: go1.13.4
+Operating System: linux
+[...]
+</pre>
+++++
+
+你的 +geth version+ 命令输出可能略有不同，但应与此处显示的版本报告大体一致。
+
+接下来的章节将解释首次同步以太坊区块链时面临的挑战(((range="endofrange", startref="ix_03clients-asciidoc6"))).(((range="endofrange", startref="ix_03clients-asciidoc5")))
+
+
+[[first_sync]]
+=== 基于以太坊的区块链的首次同步
+
+((("blockchain","first synchronization of", id="ix_03clients-asciidoc9", range="startofrange")))((("clients, Ethereum","first synchronization of Ethereum-based blockchains", id="ix_03clients-asciidoc10", range="startofrange")))((("first synchronization","of Ethereum-based blockchains", id="ix_03clients-asciidoc11", range="startofrange")))传统上，在同步以太坊区块链时，客户端会自创世区块开始下载并验证每个区块和每笔交易。
+
+虽然可以通过这种方式完全同步区块链，但过程耗时极长、资源需求也很高（需要更多 RAM，如果没有高速存储，所需时间会更长）。
+
+许多基于以太坊的区块链在 2016 年底遭受了拒绝服务攻击。受到影响的区块链在执行完全同步时往往会变得很慢。
+
+以以太坊为例，新客户端会快速推进，直到到达区块 2,283,397。该区块于 2016 年 9 月 18 日被挖出，标志着 DoS 攻击的开始。从此区块到区块 2,700,031（2016 年 11 月 26 日），交易验证会变得异常缓慢、占用大量内存和 I/O 资源，导致每个区块的验证时间超过 1 分钟。以太坊通过一系列硬分叉升级修复了 DoS 攻击所利用的漏洞，同时清理掉垃圾交易创建的大约 2000 万个空账户。
+
+如果你执行的是完全验证，同步在遇到这些受 DoS 影响的区块时会明显放缓，并可能需要数天甚至更长时间才能完成验证。
+
+((("fast synchronization")))幸运的是，大多数以太坊客户端如今默认执行“快速”同步，即在同步到区块链顶端之前跳过对交易的完整验证，然后再恢复完全验证。
+
+Geth 在以太坊上默认执行快速同步。对于其他你选择的以太坊网络，请参考相应的具体说明。
+
+Parity 也默认执行快速同步。
+
+[NOTE]
+=====
+只有在区块数据库为空的情况下，Geth 才能以快速模式运行。如果你已经在未启用快速模式的情况下开始同步，Geth 无法中途切换。删除区块链数据目录并从头开始快速同步，比继续进行完全验证同步更快。删除区块链数据时务必小心，不要误删钱包！
+=====
+
+==== 运行 Geth 或 Parity
+
+((("first synchronization","Geth or Parity for")))((("Geth (Go-Ethereum)","for first synchronization")))((("Parity","for first synchronization")))现在你了解了“首次同步”的挑战，就可以启动以太坊客户端并同步区块链了。对于 Geth 和 Parity，你都可以使用 +--help+ 选项查看全部配置参数。默认设置通常已经合理，适用于大多数场景。根据自身需求选择性调整可选参数，然后启动 Geth 或 Parity 同步链。接下来，就是等待……
+
+[TIP]
+====
+同步以太坊区块链的时间从半天（在拥有大量 RAM 的高速系统上）到数天（在较慢的系统上）不等。
+====
+
+[[json_rpc]]
+==== JSON-RPC 接口
+
+((("clients, Ethereum","and JSON-RPC API", id="ix_03clients-asciidoc12", range="startofrange")))((("first synchronization","and JSON-RPC API", id="ix_03clients-asciidoc13", range="startofrange")))((("JSON-RPC API", id="ix_03clients-asciidoc14", range="startofrange")))以太坊客户端提供一个应用程序编程接口和一组远程过程调用（RPC）命令，这些命令使用 JavaScript Object Notation（JSON）编码。通常称为_JSON-RPC API_。本质上，JSON-RPC API 让我们能够编写程序，将以太坊客户端当作通往以太坊网络和区块链的_网关_。
+
+通常，RPC 接口作为 HTTP 服务运行在端口 8545 上。出于安全考虑，默认情况下它只接受来自 localhost（本机 IP 地址 127.0.0.1）的连接。
+
+...
+++++
+
+[[lw_eth_clients]]
+=== 远程以太坊客户端
+
+((("clients, Ethereum","remote", id="ix_03clients-asciidoc15", range="startofrange")))((("remote clients", id="ix_03clients-asciidoc16", range="startofrange")))远程客户端提供全节点功能的一个子集。它们不会存储完整的以太坊区块链，因此设置速度更快，也几乎不需要数据存储。
+
+[role="pagebreak-before"]
+这些客户端通常具备以下一项或多项能力：
+
+* 在钱包中管理私钥和以太坊地址
+* 创建、签名并广播交易
+* 使用数据负载与智能合约交互
+* 浏览并与 DApp 互动
+* 提供指向区块浏览器等外部服务的链接
+* 将 web3 实例以 JavaScript 对象注入浏览器
+* 使用其他客户端注入到浏览器中的 web3 实例
+* 访问本地或远程以太坊节点上的 RPC 服务
+
+有些远程客户端（例如移动端钱包）只提供基本的钱包功能。另一些远程客户端则是功能完整的 DApp 浏览器。远程客户端通常无需同步区块链本地副本，就能通过连接其他地方运行的全节点（例如你自己的机器、网页服务器或第三方的服务器）提供部分全节点功能。
+
+下面我们来了解几款热门远程客户端及其功能。
+
+[[mobile_wallets]]
+==== 移动（智能手机）钱包
+
+((("mobile (smartphone) wallets")))((("remote clients","mobile wallets")))((("wallets","mobile")))所有移动钱包都是远程客户端，因为智能手机的资源不足以运行完整的以太坊客户端。以太坊的轻客户端仍在开发中，尚未普遍使用。在 Parity 中，轻客户端被标记为“实验性”，可以通过运行 +parity+ 并添加 +--light+ 选项来启用。
+
+常见的移动钱包包括（仅列举示例，并不代表对这些钱包的安全性或功能性作出推荐或评价）：
+
+https://jaxx.io[Jaxx]:: ((("Jaxx","mobile version")))((("wallets","Jaxx")))基于 BIP-39 助记词的多币种移动钱包，支持 Bitcoin、Litecoin、Ethereum、Ethereum Classic、ZCash、多种 ERC20 代币以及其他货币。Jaxx 可用于 Android 和 iOS，也提供浏览器插件钱包和多种操作系统的桌面钱包。
+
+https://status.im[Status]:: ((("Status (mobile wallet)")))一款移动钱包和 DApp 浏览器，支持多种代币及常用 DApp。适用于 iOS 和 Android。
+
+https://trustwalletapp.com/[Trust Wallet]:: ((("Trust Wallet")))((("wallets","Trust")))一款移动多币种钱包，支持 Ethereum、Ethereum Classic 以及 ERC20、ERC223 代币。Trust Wallet 提供 iOS 和 Android 版本。
+
+https://www.cipherbrowser.com[Cipher Browser]:: ((("Cipher Browser")))全功能的以太坊移动 DApp 浏览器和钱包，可与以太坊应用和代币集成。适用于 iOS 和 Android。
+
+[[browser_wallets]]
+==== 浏览器钱包
+
+((("browser wallets")))((("remote clients","browser wallets")))((("wallets","browser wallets")))多种钱包和 DApp 浏览器以 Chrome、Firefox 等浏览器的插件或扩展形式提供。它们是运行在浏览器中的远程客户端。
+
+比较流行的有 MetaMask、Jaxx、MyEtherWallet 和 MyCrypto。
+
+[[MetaMask]]
+===== MetaMask
+
+https://metamask.io/[MetaMask] ((("MetaMask","as browser wallet")))已在<<intro_chapter>>中介绍，是一款功能多样的浏览器钱包、RPC 客户端和基础合约浏览器。它可在 Chrome、Firefox、Opera 和 Brave 浏览器上使用。
+
+与其他浏览器钱包不同，MetaMask 会在浏览器的 JavaScript 上下文中注入 web3 实例，充当 RPC 客户端，连接多种以太坊区块链（主网、Ropsten 测试网、Kovan 测试网、本地 RPC 节点等）。能够注入 web3 实例并作为外部 RPC 服务的网关，使 MetaMask 成为开发者和用户的强大工具。例如，它可以与 MyEtherWallet 或 MyCrypto 组合使用，为这些工具提供 web3 Provider 和 RPC 网关。
+
+[[Jaxx]]
+===== Jaxx
+
+https://jaxx.io[Jaxx] ((("Jaxx","desktop version")))((("wallets","Jaxx")))前文作为移动钱包介绍过，同时也提供 Chrome 和 Firefox 扩展以及桌面钱包版本。
+
+[[MEW]]
+===== MyEtherWallet (MEW)
+
+https://www.myetherwallet.com/[MyEtherWallet] ((("MyEtherWallet (MEW)")))((("wallets","MyEtherWallet")))是一款基于浏览器的 JavaScript 远程客户端，提供以下功能：
+
+* 与 Trezor、Ledger 等热门硬件钱包对接
+* 提供 web3 接口，可连接由其他客户端（如 MetaMask）注入的 web3 实例
+* 作为 RPC 客户端连接以太坊全节点
+* 基本的智能合约交互界面，只需提供合约地址和应用二进制接口（ABI）即可
+* 提供移动应用 MEWConnect，可让兼容的 Android 或 iOS 设备像硬件钱包一样存储资金
+* 在 JavaScript 中运行的软件钱包
+
+[WARNING]
+====
+访问 MyEtherWallet 及其他基于浏览器的 JavaScript 钱包时务必谨慎，因为它们经常成为钓鱼攻击目标。请始终使用收藏夹中的书签，而非搜索引擎或外部链接，以确保访问正确的网址。
+====
+
+[[MyCrypto]]
+===== MyCrypto
+
+((("MyCrypto (wallet)")))((("wallets","MyCrypto")))2018 年初，((("MyEtherWallet (MEW)")))((("wallets","MyEtherWallet")))MyEtherWallet 项目分裂成由两个独立开发团队维护的竞品实现，这是开源开发中常见的“分叉”。这两个项目分别是沿用原品牌的 MyEtherWallet，以及 https://mycrypto.com/[MyCrypto]。MyCrypto 的功能几乎与 MyEtherWallet 完全一致，但它使用 Parity Signer 移动应用与手机连接，而不是 MEWConnect。Parity Signer 同样在手机上存储密钥，并以类似硬件钱包的方式与 MyCrypto 交互。
+
+[[Mist]]
+===== Mist（已弃用）
+
+https://github.com/ethereum/mist[Mist] ((("Mist (browser-based wallet)")))((("wallets","Mist")))是以太坊基金会构建的第一款支持以太坊的浏览器。它内置的浏览器钱包是 ERC20 代币标准的首次实现（ERC20 作者 Fabian Vogelsteller 也是 Mist 的主要开发者）。Mist 也是首个引入驼峰式校验和（EIP-55）的钱包。自 2019 年 3 月起，Mist 已被弃用，不应再使用。
+
+=== 小结
+
+本章我们探索了以太坊客户端。你已经下载、安装并同步了客户端，成为以太坊网络中的一员，通过在自己的电脑上复制区块链，为系统的健康与稳定作出贡献。(((range="endofrange", startref="ix_03clients-asciidoc0")))
